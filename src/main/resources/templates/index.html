@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="https://www.thymeleaf.org" lang="ru">
+<head th:replace="~{template :: head(title='Servlets Homework Index Page')}"></head>
+
+<body>
+
+<header id="header" class="header fixed-top" th:insert="~{template :: header}"></header>
+
+<section id="hero" class="hero d-flex align-items-center">
+
+    <div class="container">
+        <div class="row">
+            <h1 class="">Это стартовая страница, чтобы воспользоваться функционалом, перейдите на страницу Users/Roles/Departments</h1>
+        </div>
+    </div>
+
+</section>
+
+<footer id="footer" class="footer" th:insert="~{template :: footer}"></footer>
+
+<div th:insert="~{template :: scripts}"></div>
+
+</body>
+
+</html>

@@ -1,0 +1,137 @@
+package ru.furestry.astonhomework.repository;
+
+import ru.furestry.astonhomework.database.DatabaseFactory;
+import ru.furestry.astonhomework.entity.Department;
+import ru.furestry.astonhomework.entity.User;
+import ru.furestry.astonhomework.service.UserService;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Optional;
+
+public class DepartmentRepository implements IRepository<Department, Long> {
+    @Override
+    public Optional<Department> findById(Long id) {
+        String sql = "SELECT name FROM departments WHERE id = ?";
+        String name = null;
+
+        try {
+            Connection conn = DatabaseFactory.getConnection();
+            PreparedStatement preparedStatement = conn.prepareStatement(sql);
+
+            preparedStatement.setLong(1, id);
+
+            ResultSet result = preparedStatement.executeQuery();
+
+            if (result == null) {
+                return Optional.empty();
+            }
+
+            if (result.next()) {
+                name = result.getString("name");
+            }
+        } catch (SQLException e) {
+            return Optional.empty();
+        }
+
+        Department department = new Department(id, name);
+        department.setUsers(findAllDepartmentUsers(department));
+
+        return Optional.of(department);
+    }
+
+    @Override
+    public List<Department> findAll() {
+        String sql = "SELECT id, name FROM departments";
+        List<Department> departments;
+
+        try {
+            Connection conn = DatabaseFactory.getConnection();
+            PreparedStatement preparedStatement = conn.prepareStatement(sql);
+            ResultSet result = preparedStatement.executeQuery();
+
+            if (result == null) {
+                return List.of();
+            }
+
+            departments = new ArrayList<>();
+            while (result.next()) {
+                Long id = result.getLong("id");
+                String name = result.getString("name");
+                Department department = new Department(id, name);
+                department.setUsers(findAllDepartmentUsers(department));
+
+                departments.add(department);
+            }
+
+            departments.sort(Comparator.comparingLong(Department::getId));
+
+            return departments;
+        } catch (SQLException e) {
+            return List.of();
+        }
+    }
+
+    @Override
+    public boolean save(Department entity) {
+        String sql = "INSERT INTO departments (name) VALUES (?)";
+
+        try {
+            Connection conn = DatabaseFactory.getConnection();
+            PreparedStatement preparedStatement = conn.prepareStatement(sql);
+            preparedStatement.setString(1, entity.getName());
+
+            return preparedStatement.executeUpdate() > 0;
+        } catch (SQLException e) {
+            return false;
+        }
+    }
+
+    @Override
+    public boolean update(Department entity) {
+        String sql = "UPDATE departments SET name = ? WHERE id = ?";
+
+        try {
+            Connection conn = DatabaseFactory.getConnection();
+            PreparedStatement preparedStatement = conn.prepareStatement(sql);
+            preparedStatement.setString(1, entity.getName());
+            preparedStatement.setLong(2, entity.getId());
+
+            return preparedStatement.executeUpdate() > 0;
+        } catch (SQLException e) {
+            return false;
+        }
+    }
+
+    @Override
+    public boolean delete(Long id) {
+        String sql = "DELETE FROM departments WHERE id = ?";
+
+        try {
+            Connection conn = DatabaseFactory.getConnection();
+            PreparedStatement preparedStatement = conn.prepareStatement(sql);
+            preparedStatement.setLong(1, id);
+
+            return preparedStatement.executeUpdate() > 0;
+        } catch (SQLException e) {
+            return false;
+        }
+    }
+
+    @Override
+    public boolean delete(Department entity) {
+        return delete(entity.getId());
+    }
+
+    private List<User> findAllDepartmentUsers(Department entity) {
+        List<User> users = UserService.getInstance().findAllByDepartmentId(entity.getId());
+        users.parallelStream().forEach(u -> u.setDepartment(entity));
+
+        return users;
+    }
+}
