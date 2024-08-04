@@ -15,7 +15,6 @@ import ru.furestry.astonhomework.entity.User;
 import ru.furestry.astonhomework.service.DepartmentService;
 import ru.furestry.astonhomework.service.RoleService;
 import ru.furestry.astonhomework.service.UserService;
-import ru.furestry.astonhomework.util.Utils;
 
 import java.io.IOException;
 import java.util.List;
@@ -41,9 +40,11 @@ public class UsersServlet extends HttpServlet {
     public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
         User user = new User();
         String username = request.getParameter("username");
-        String departmentId = Utils.getParameterValue("department", request.getParameterMap());
-        List<Role> roles = Utils.getParameterValues("role", request.getParameterMap())
+        String departmentId = request.getParameter("department");
+        List<Role> roles = request.getParameterMap()
+                .keySet()
                 .parallelStream()
+                .filter(k -> k.startsWith("role"))
                 .map(r -> RoleService.getInstance()
                         .findById(Long.parseLong(r))
                         .orElse(null)
@@ -81,13 +82,16 @@ public class UsersServlet extends HttpServlet {
             User user = new User();
             String username = request.getParameter("username");
             String userId = request.getParameter("userId");
-            List<Role> roles = Utils.getParameterValues("role", request.getParameterMap())
+            List<Role> roles = request.getParameterMap()
+                    .keySet()
                     .parallelStream()
+                    .filter(k -> k.startsWith("role"))
                     .map(r -> RoleService.getInstance()
-                            .findById(Long.parseLong(r)).orElse(null)
+                            .findById(Long.parseLong(r))
+                            .orElse(null)
                     )
                     .toList();
-            String departmentId = Utils.getParameterValue("department", request.getParameterMap());
+            String departmentId = request.getParameter("department");
 
             user.setId(Long.parseLong(userId));
             user.setUsername(username);
