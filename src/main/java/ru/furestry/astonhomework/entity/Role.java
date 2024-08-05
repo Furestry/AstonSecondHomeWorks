@@ -22,9 +22,33 @@ public class Role implements IEntity {
     }
 
     @Override
+    public int hashCode(){
+        int result = 17;
+
+        if (id != null) {
+            result = 31 * result + id.hashCode();
+        }
+        if (name != null) {
+            result = 31 * result + name.hashCode();
+        }
+
+        return result;
+    }
+
+    @Override
     public boolean equals(Object o) {
         if (o == null) return false;
         if (!(o instanceof Role role)) return false;
+        if (id == null) {
+            if (role.getId() == null) {
+                return role.getName().equals(name);
+            }
+
+            return false;
+        }
+        if (role.getId() == null) {
+            return false;
+        }
 
         return role.getId().equals(id) && role.getName().equals(name);
     }

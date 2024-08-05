@@ -31,9 +31,33 @@ public class User implements IEntity {
     }
 
     @Override
+    public int hashCode(){
+        int result = 17;
+
+        if (id != null) {
+            result = 31 * result + id.hashCode();
+        }
+        if (username != null) {
+            result = 31 * result + username.hashCode();
+        }
+
+        return result;
+    }
+
+    @Override
     public boolean equals(Object o) {
         if (o == null) return false;
         if (!(o instanceof User user)) return false;
+        if (id == null) {
+            if (user.getId() == null) {
+                return user.getUsername().equals(username);
+            }
+
+            return false;
+        }
+        if (user.getId() == null) {
+            return false;
+        }
 
         return user.getId().equals(id) && user.getUsername().equals(username);
     }
