@@ -3,10 +3,7 @@ package ru.furestry.astonhomework.repository;
 import ru.furestry.astonhomework.database.DatabaseFactory;
 import ru.furestry.astonhomework.entity.Role;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -76,7 +73,7 @@ public class RoleRepository  implements IRepository<Role, Long> {
 
         try {
             Connection conn = DatabaseFactory.getConnection();
-            PreparedStatement preparedStatement = conn.prepareStatement(sql);
+            PreparedStatement preparedStatement = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
             preparedStatement.setString(1, entity.getName());
 
             boolean isSaved = preparedStatement.executeUpdate() > 0;
