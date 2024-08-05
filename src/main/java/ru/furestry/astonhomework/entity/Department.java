@@ -1,5 +1,7 @@
 package ru.furestry.astonhomework.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -14,6 +16,7 @@ public class Department implements IEntity {
 
     private String name;
 
+    @JsonIgnore
     private List<User> users;
 
     public Department(Long id, String name) {
@@ -52,5 +55,10 @@ public class Department implements IEntity {
         }
 
         return department.getId().equals(id) && department.getName().equals(name);
+    }
+
+    @JsonProperty("users")
+    public int getUsersSize() {
+        return users.size();
     }
 }
