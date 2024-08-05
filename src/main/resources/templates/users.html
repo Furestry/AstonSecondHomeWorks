@@ -42,7 +42,7 @@
                                     <li th:each="role, iStat: ${rolesList}">
                                         <a class="dropdown-item" href="#">
                                             <div class="form-check">
-                                                <input class="form-check-input" type="checkbox" th:value="${role.getId()}" th:id="${iStat.index}" th:name="'role' + ${iStat.index}"
+                                                <input class="form-check-input" type="checkbox" th:value="${role.getId()}" th:id="${iStat.index}" name="role"
                                                        th:form="${'edit_user' + user.getId()}" th:checked="${user.getRoles().contains(role)}">
                                                 <label class="form-check-label" th:for="${iStat.index}" th:text="${role.getName()}"></label>
                                             </div>
@@ -121,7 +121,7 @@
                                 <li th:each="role, iStat: ${rolesList}">
                                     <a class="dropdown-item" href="#">
                                         <div class="form-check">
-                                            <input class="form-check-input" type="checkbox" th:value="${role.getId()}" th:id="${iStat.index}" th:name="'role' + ${iStat.index}" form="create_user_form">
+                                            <input class="form-check-input" type="checkbox" th:value="${role.getId()}" th:id="${iStat.index}" name="role" form="create_user_form">
                                             <label class="form-check-label" th:for="${iStat.index}" th:text="${role.getName()}"></label>
                                         </div>
                                     </a>

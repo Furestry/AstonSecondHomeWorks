@@ -17,6 +17,7 @@ import ru.furestry.astonhomework.service.RoleService;
 import ru.furestry.astonhomework.service.UserService;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 
 @WebServlet("/users")
@@ -41,10 +42,8 @@ public class UsersServlet extends HttpServlet {
         User user = new User();
         String username = request.getParameter("username");
         String departmentId = request.getParameter("department");
-        List<Role> roles = request.getParameterMap()
-                .keySet()
-                .parallelStream()
-                .filter(k -> k.startsWith("role"))
+        List<Role> roles = Arrays.stream(request.getParameterValues("role"))
+                .parallel()
                 .map(r -> RoleService.getInstance()
                         .findById(Long.parseLong(r))
                         .orElse(null)
@@ -82,10 +81,8 @@ public class UsersServlet extends HttpServlet {
             User user = new User();
             String username = request.getParameter("username");
             String userId = request.getParameter("userId");
-            List<Role> roles = request.getParameterMap()
-                    .keySet()
-                    .parallelStream()
-                    .filter(k -> k.startsWith("role"))
+            List<Role> roles = Arrays.stream(request.getParameterValues("role"))
+                    .parallel()
                     .map(r -> RoleService.getInstance()
                             .findById(Long.parseLong(r))
                             .orElse(null)
