@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="https://www.thymeleaf.org" lang="ru">
+<head th:replace="~{template :: head(title='Servlets Homework Users Page')}"></head>
+<body>
+    <header id="header" class="header fixed-top" th:insert="~{template :: header}"></header>
+
+    <section id="hero" class="hero d-flex align-items-center">
+
+    <div class="container">
+        <div class="row table-header">
+            <table data-toggle="table" data-sort-name="date" data-sort-order="desc" class="table table-responsive table-hover">
+                <thead>
+                <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">ID</th>
+                    <th scope="col">Username</th>
+                    <th scope="col">Roles</th>
+                    <th scope="col">Departments</th>
+                    <th scope="col">Edit</th>
+                    <th scope="col">Delete</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="user, iStat: ${usersList}" class="user-line">
+                    <td th:text="${iStat.index + 1}"></td>
+                    <td th:text="${user.getId()}"></td>
+                    <td>
+                        <span class="read" th:text="${user.getUsername()}"></span>
+                        <input class="form-control me-2 d-none edit" type="text" th:value="${user.getUsername()}" th:placeholder="${user.getUsername()}" name="username" required minlength="4" maxlength="32" th:form="${'edit_user' + user.getId()}">
+                    </td>
+                    <td>
+                        <div class="read" th:if="${user.getRoles().size() != 0}">
+                            <span th:each="userRole : ${user.getRoles()}" th:text="${' ' + userRole.getName()} + '(' + ${userRole.getId()} + ')'"></span>
+                        </div>
+                        <span th:if="${user.getRoles().size() == 0}">Роли не установлены</span>
+                        <div class="d-none edit">
+                            <div class="dropdown" th:if="${rolesList.size() > 0}">
+                                <button class="btn btn-primary dropdown-toggle" type="button" id="dropdownEditRolesButton" data-bs-toggle="dropdown" aria-expanded="false">
+                                    Выбрать роли
+                                </button>
+                                <ul class="dropdown-menu" aria-labelledby="dropdownEditRolesButton">
+                                    <li th:each="role, iStat: ${rolesList}">
+                                        <a class="dropdown-item" href="#">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" th:value="${role.getId()}" th:id="${iStat.index}" name="role"
+                                                       th:form="${'edit_user' + user.getId()}" th:checked="${user.getRoles().contains(role)}">
+                                                <label class="form-check-label" th:for="${iStat.index}" th:text="${role.getName()}"></label>
+                                            </div>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+                            <div th:if="${rolesList.size() == 0}">
+                                <input class="form-check-input" type="checkbox" value="0" id="edit_roles" name="role" th:form="${'edit_user' + user.getId()}">
+                                <label class="form-check-label" for="role">Пустой</label>
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        <span class="read" th:if="${user.getDepartment() != null}" th:text="' ' + ${user.getDepartment().getName()} + '(' + ${user.getDepartment().getId()} + ')'"></span>
+                        <span class="read" th:if="${user.getDepartment() == null}">Отдел не установлен</span>
+                        <div class="d-none edit">
+                            <div class="dropdown" th:if="${departmentsList.size() > 0}">
+                                <button class="btn btn-primary dropdown-toggle" type="button" id="dropdownEditDepartmentButton" data-bs-toggle="dropdown" aria-expanded="false">
+                                    Выбрать отдел
+                                </button>
+                                <ul class="dropdown-menu" aria-labelledby="dropdownEditRolesButton">
+                                    <li th:each="department, iStat: ${departmentsList}">
+                                        <a class="dropdown-item" href="#">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="radio" th:value="${department.getId()}" th:id="${iStat.index}" name="department" th:form="${'edit_user' + user.getId()}" th:checked="${user.getDepartment() == null ? false : user.getDepartment().getId() == department.getId()}">
+                                                <label class="form-check-label" th:for="${iStat.index}" th:text="${department.getName()}"></label>
+                                            </div>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+                            <div th:if="${departmentsList.size() == 0}">
+                                <input class="form-check-input" type="checkbox" value="0" id="edit_department" name="department" th:form="${'edit_user' + user.getId()}">
+                                <label class="form-check-label" for="role">Пустой</label>
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        <form method="POST" action="/users/edit" th:id="${'edit_user' + user.getId()}">
+                            <input type="hidden" th:value="${user.getId()}" name="userId">
+                        </form>
+                        <button class="btn btn-outline-warning btn-edit" onclick="edit(this)">
+                            <i class="bi bi-file-earmark-code"></i> Edit
+                        </button>
+                        <button class="btn btn-outline-success d-none btn-save" th:form="${'edit_user' + user.getId()}" type="submit">
+                            <i class="bi bi-file-earmark-check-fill"></i> Save
+                        </button>
+                    </td>
+                    <td>
+                        <form method="POST" action="/users/delete" th:id="${'delete_user' + user.getId()}">
+                            <input type="hidden" th:value="${user.getId()}" name="userId">
+                        </form>
+                        <button class="btn btn-outline-danger" th:form="${'delete_user' + user.getId()}" type="submit">
+                            <i class="bi bi-file-earmark-excel"></i> Delete
+                        </button>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <span class="form-control me-2" th:text="${usersList.size() + 1}"></span>
+                    </td>
+                    <td>
+                        <span class="form-control me-2" th:if="${usersList.size() > 0}" th:text="${usersList.getLast().getId() + 1}"></span>
+                        <span class="form-control me-2" th:if="${usersList.size() == 0}">1</span>
+                    </td>
+                    <td>
+                        <input class="form-control me-2" type="text" placeholder="Username" name="username" id="username" required minlength="4" maxlength="32" form="create_user_form">
+                    </td>
+                    <td>
+                        <div class="dropdown" th:if="${rolesList.size() > 0}">
+                            <button class="btn btn-primary dropdown-toggle" type="button" id="dropdownRolesButton" data-bs-toggle="dropdown" aria-expanded="false">
+                                Выбрать роли
+                            </button>
+                            <ul class="dropdown-menu" aria-labelledby="dropdownRolesButton">
+                                <li th:each="role, iStat: ${rolesList}">
+                                    <a class="dropdown-item" href="#">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" th:value="${role.getId()}" th:id="${iStat.index}" name="role" form="create_user_form">
+                                            <label class="form-check-label" th:for="${iStat.index}" th:text="${role.getName()}"></label>
+                                        </div>
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                        <div th:if="${rolesList.size() == 0}">
+                            <input class="form-check-input" type="checkbox" value="0" id="role" name="role" form="create_user_form">
+                            <label class="form-check-label" for="role">Пустой</label>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="dropdown" th:if="${departmentsList.size() > 0}">
+                            <button class="btn btn-primary dropdown-toggle" type="button" id="dropdownDepartmentsButton" data-bs-toggle="dropdown" aria-expanded="false">
+                                Выбрать отдел
+                            </button>
+                            <ul class="dropdown-menu" aria-labelledby="dropdownDepartmentsButton">
+                                <li th:each="department, iStat: ${departmentsList}">
+                                    <a class="dropdown-item" href="#">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="radio" th:value="${department.getId()}" th:id="${iStat.index}" name="department" form="create_user_form" />
+                                            <label class="form-check-label" th:for="${iStat.index}" th:text="${department.getName()}"></label>
+                                        </div>
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                        <div th:if="${departmentsList.size() == 0}">
+                            <input class="form-check-input" type="checkbox" value="0" id="department" name="department" form="create_user_form" />
+                            <label class="form-check-label" for="department">Пустой</label>
+                        </div>
+                    </td>
+                    <td colspan="2">
+                        <form method="POST" id="create_user_form"></form>
+                        <button class="btn btn-outline-secondary" type="submit" form="create_user_form">Добавить нового пользователя</button>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</section>
+
+    <footer id="footer" class="footer" th:insert="~{template :: footer}"></footer>
+
+    <div th:insert="~{template :: scripts}"></div>
+</body>
+
+</html>

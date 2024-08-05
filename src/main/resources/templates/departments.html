@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="https://www.thymeleaf.org" lang="ru">
+<head th:replace="~{template :: head(title='Servlets Homework Departments Page')}"></head>
+
+<body>
+
+<header id="header" class="header fixed-top" th:insert="~{template :: header}"></header>
+
+<section id="hero" class="hero d-flex align-items-center">
+
+    <div class="container">
+        <div class="row table-header">
+            <table data-toggle="table" data-sort-name="date" data-sort-order="desc" class="table table-responsive table-hover">
+                <thead>
+                <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">ID</th>
+                    <th scope="col">Name</th>
+                    <th scope="col">Users</th>
+                    <th scope="col">Edit</th>
+                    <th scope="col">Delete</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="department, iStat: ${departmentsList}" class="department-line">
+                    <td th:text="${iStat.index + 1}"></td>
+                    <td th:text="${department.getId()}"></td>
+                    <td>
+                        <span class="read" th:text="${department.getName()}"></span>
+                        <input class="form-control me-2 d-none edit" type="text" th:value="${department.getName()}" th:placeholder="${department.getName()}" name="name" required minlength="4" maxlength="32" th:form="${'edit_department' + department.getId()}">
+                    </td>
+                    <td>
+                        <span th:text="${department.getUsers().size()}"></span>
+                    </td>
+                    <td>
+                        <form method="POST" action="/departments/edit" th:id="${'edit_department' + department.getId()}">
+                            <input type="hidden" th:value="${department.getId()}" name="departmentId">
+                        </form>
+                        <button class="btn btn-outline-warning btn-edit" onclick="edit(this)">
+                            <i class="bi bi-file-earmark-code"></i> Edit
+                        </button>
+                        <button class="btn btn-outline-success d-none btn-save" th:form="${'edit_department' + department.getId()}" type="submit">
+                            <i class="bi bi-file-earmark-check-fill"></i> Save
+                        </button>
+                    </td>
+                    <td>
+                        <form method="POST" action="/departments/delete" th:id="${'delete_department' + department.getId()}">
+                            <input type="hidden" th:value="${department.getId()}" name="departmentId">
+                        </form>
+                        <button class="btn btn-outline-danger" th:form="${'delete_department' + department.getId()}" type="submit">
+                            <i class="bi bi-file-earmark-excel"></i> Delete
+                        </button>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <span class="form-control me-2" th:text="${departmentsList.size() + 1}"></span>
+                    </td>
+                    <td>
+                        <span class="form-control me-2" th:if="${departmentsList.size() > 0}" th:text="${departmentsList.getLast().getId() + 1}"></span>
+                        <span class="form-control me-2" th:if="${departmentsList.size() == 0}">1</span>
+                    </td>
+                    <td>
+                        <input class="form-control me-2" type="text" placeholder="Name" name="name" id="name" required minlength="4" maxlength="32" form="create_department_form">
+                    </td>
+                    <td colspan="3">
+                        <form method="POST" id="create_department_form"></form>
+                        <button class="btn btn-outline-secondary" type="submit" form="create_department_form">Добавить новый отдел</button>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</section>
+
+<footer id="footer" class="footer" th:insert="~{template :: footer}"></footer>
+
+<div th:insert="~{template :: scripts}"></div>
+
+</body>
+
+</html>

@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="https://www.thymeleaf.org" lang="ru">
+<head th:replace="~{template :: head(title='Servlets Homework API Page')}"></head>
+
+<body>
+
+<header id="header" class="header fixed-top" th:insert="~{template :: header}"></header>
+
+<section id="hero" class="hero d-flex align-items-center">
+
+    <div class="container">
+        <div class="row">
+            <h1 class="">Взаимодействие с API:</h1>
+            <p>Вам необходимо отправить GET (read) или POST (/delete, /update, /create) запрос на /api/method/{object}?requestParameter=x</p>
+            <p>Возможные объекты: users, departments, roles</p>
+            <p>Возможные параметры: id число (только для GET)</p>
+            <p>Возможные параметры: department_id число (Для user)</p>
+            <p>Возможные параметры: role_ids массив чисел (Для user)</p>
+            <p>Возможные параметры: username (Для user) name (для остальных) текст</p>
+            <p>Возможные параметры: user_ids массив чисел (Для role и department)</p>
+        </div>
+    </div>
+
+</section>
+
+<footer id="footer" class="footer" th:insert="~{template :: footer}"></footer>
+
+<div th:insert="~{template :: scripts}"></div>
+
+</body>
+
+</html>
