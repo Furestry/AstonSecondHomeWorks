@@ -93,31 +93,41 @@ public class UserRepository implements IRepository<User, Long> {
 
     @Override
     public boolean save(User entity) {
-        StringBuilder saveUser = new StringBuilder("INSERT INTO users (username, department_id) VALUES (?, ?);");
-        saveUser.append("INSERT INTO user_roles (user_id, role_id) VALUES(?, ?);".repeat(entity.getRoles().size()));
+        String saveUser = "INSERT INTO users (username, department_id) VALUES (?, ?);";
+        String saveRoles = "INSERT INTO user_roles (user_id, role_id) VALUES(?, ?);".repeat(entity.getRoles().size());
 
         try {
             Connection conn = DatabaseFactory.getConnection();
-            PreparedStatement preparedStatement = conn.prepareStatement(saveUser.toString());
-            preparedStatement.setString(1, entity.getUsername());
-
-            AtomicInteger paramIndex = new AtomicInteger(2);
-            entity.getRoles().forEach(r -> {
-                try {
-                    preparedStatement.setLong(paramIndex.incrementAndGet(), entity.getId());
-                    preparedStatement.setLong(paramIndex.incrementAndGet(), r.getId());
-                } catch (SQLException e) {
-                    throw new RuntimeException(e);
-                }
-            });
+            PreparedStatement saveUserStatement = conn.prepareStatement(saveUser, Statement.RETURN_GENERATED_KEYS);
+            saveUserStatement.setString(1, entity.getUsername());
 
             if (entity.getDepartment() == null) {
-                preparedStatement.setNull(2, Types.BIGINT);
+                saveUserStatement.setNull(2, Types.BIGINT);
             } else {
-                preparedStatement.setLong(2, entity.getDepartment().getId());
+                saveUserStatement.setLong(2, entity.getDepartment().getId());
             }
 
-            return preparedStatement.executeUpdate() > 0;
+            saveUserStatement.executeUpdate();
+
+            ResultSet result = saveUserStatement.getGeneratedKeys();
+            if (result.next()) {
+                entity.setId(result.getLong("id"));
+
+                PreparedStatement saveRolesStatement = conn.prepareStatement(saveRoles);
+                AtomicInteger paramIndex = new AtomicInteger(0);
+                entity.getRoles().forEach(r -> {
+                    try {
+                        saveRolesStatement.setLong(paramIndex.incrementAndGet(), entity.getId());
+                        saveRolesStatement.setLong(paramIndex.incrementAndGet(), r.getId());
+                    } catch (SQLException e) {
+                        throw new RuntimeException(e);
+                    }
+                });
+
+                saveRolesStatement.executeUpdate();
+            }
+
+            return entity.getId() != null;
         } catch (SQLException e) {
             return false;
         }

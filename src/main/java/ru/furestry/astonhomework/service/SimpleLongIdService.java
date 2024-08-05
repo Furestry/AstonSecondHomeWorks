@@ -38,9 +38,10 @@ public abstract class SimpleLongIdService<T extends IEntity> implements IService
 
     @Override
     public boolean save(T entity) {
+        boolean isSaved = repository.save(entity);
         list.add(entity);
 
-        return repository.save(entity);
+        return isSaved;
     }
 
     @Override

@@ -79,7 +79,14 @@ public class RoleRepository  implements IRepository<Role, Long> {
             PreparedStatement preparedStatement = conn.prepareStatement(sql);
             preparedStatement.setString(1, entity.getName());
 
-            return preparedStatement.executeUpdate() > 0;
+            boolean isSaved = preparedStatement.executeUpdate() > 0;
+
+            ResultSet result = preparedStatement.getGeneratedKeys();
+            if (result.next()) {
+                entity.setId(result.getLong("id"));
+            }
+
+            return isSaved;
         } catch (SQLException e) {
             return false;
         }
