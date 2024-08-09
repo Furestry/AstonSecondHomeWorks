@@ -1,5 +1,5 @@
 package ru.furestry.astonhomework.entity;
 
-public interface IEntity {
-    Long getId();
+public interface IEntity <ID> {
+    ID getId();
 }

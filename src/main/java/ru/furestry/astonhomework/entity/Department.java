@@ -2,26 +2,41 @@ package ru.furestry.astonhomework.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import jakarta.persistence.*;
+import lombok.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
-@Data
-@AllArgsConstructor
+@Getter
+@Setter
+@ToString
+@Entity
+@RequiredArgsConstructor
 @NoArgsConstructor
-public class Department implements IEntity {
+@Table(name = "departments")
+public class Department implements IEntity<Long> {
+    @Id
+    @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    @Column(name = "id", nullable = false)
     private Long id;
 
     private String name;
 
     @JsonIgnore
+    @OneToMany
+    @JoinColumn(name="department")
+    @ToString.Exclude
     private List<User> users;
 
     public Department(Long id, String name) {
+        this(id, name, new ArrayList<>());
+    }
+
+    public Department(Long id, String name, List<User> users) {
         this.id = id;
         this.name = name;
+        this.users = users;
     }
 
     @Override
@@ -41,6 +56,7 @@ public class Department implements IEntity {
 
     @Override
     public boolean equals(Object o) {
+        if (this == o) return true;
         if (o == null) return false;
         if (!(o instanceof Department department)) return false;
         if (id == null) {

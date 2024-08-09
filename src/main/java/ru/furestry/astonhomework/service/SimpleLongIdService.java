@@ -6,7 +6,7 @@ import ru.furestry.astonhomework.repository.IRepository;
 import java.util.List;
 import java.util.Optional;
 
-public abstract class SimpleLongIdService<T extends IEntity> implements IService<T, Long> {
+public abstract class SimpleLongIdService<T extends IEntity<Long>> implements IService<T, Long> {
     protected IRepository<T, Long> repository;
     protected List<T> list;
 

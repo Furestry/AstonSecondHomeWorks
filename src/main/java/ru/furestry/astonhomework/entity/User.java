@@ -1,34 +1,45 @@
 package ru.furestry.astonhomework.entity;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import jakarta.persistence.*;
+import lombok.*;
+import ru.furestry.astonhomework.entity.document.Document;
 
 import java.util.ArrayList;
 import java.util.Collection;
 
-@Data
-@AllArgsConstructor
+@Getter
+@Setter
+@ToString
+@Entity
+@RequiredArgsConstructor
 @NoArgsConstructor
-public class User implements IEntity {
+@Table(name = "users")
+public class User implements IEntity<Long> {
+    @Id
+    @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    @Column(name = "id", nullable = false)
     private Long id;
 
     private String username;
 
+    @ManyToOne
+    @JoinColumn(name = "department_id")
     private Department department;
 
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "user")
+    private Document document;
+
+    @ToString.Exclude
+    @ManyToMany
+    @JoinTable(
+            name = "user_roles",
+            joinColumns = @JoinColumn(
+                    name = "user_id", referencedColumnName = "id"),
+            inverseJoinColumns = @JoinColumn(
+                    name = "role_id", referencedColumnName = "id")
+    )
     private Collection<Role> roles = new ArrayList<>();
-
-    public User(Long id, String username) {
-        this.id = id;
-        this.username = username;
-    }
-
-    public User(Long id, String username, Department department) {
-        this.id = id;
-        this.username = username;
-        this.department = department;
-    }
 
     @Override
     public int hashCode(){
@@ -46,6 +57,7 @@ public class User implements IEntity {
 
     @Override
     public boolean equals(Object o) {
+        if (this == o) return true;
         if (o == null) return false;
         if (!(o instanceof User user)) return false;
         if (id == null) {

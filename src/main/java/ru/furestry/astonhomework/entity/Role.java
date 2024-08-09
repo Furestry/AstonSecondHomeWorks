@@ -2,27 +2,30 @@ package ru.furestry.astonhomework.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import jakarta.persistence.*;
+import lombok.*;
 
-import java.util.ArrayList;
 import java.util.Collection;
 
-@Data
-@AllArgsConstructor
+@Getter
+@Setter
+@ToString
+@Entity
+@RequiredArgsConstructor
 @NoArgsConstructor
-public class Role implements IEntity {
+@Table(name = "roles")
+public class Role implements IEntity<Long> {
+    @Id
+    @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    @Column(name = "id", nullable = false)
     private Long id;
 
     private String name;
 
     @JsonIgnore
+    @ManyToMany(mappedBy = "roles")
+    @ToString.Exclude
     private Collection<User> users;
-
-    public Role(Long id, String name) {
-        this(id, name, new ArrayList<>());
-    }
 
     @Override
     public int hashCode(){
@@ -40,6 +43,7 @@ public class Role implements IEntity {
 
     @Override
     public boolean equals(Object o) {
+        if (this == o) return true;
         if (o == null) return false;
         if (!(o instanceof Role role)) return false;
         if (id == null) {
